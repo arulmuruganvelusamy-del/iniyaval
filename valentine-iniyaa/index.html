@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5, user-scalable=yes" />
+  <meta name="theme-color" content="#ffeef6" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>For Iniya — A Love Story</title>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <!-- Gate: "Will you be my Valentine?" — shows first, then main site after Yes + Enter -->
+  <div id="valentineGate" class="valentine-gate">
+    <canvas id="confettiCanvas" class="gate-confetti-canvas" aria-hidden="true"></canvas>
+    <main class="gate-card">
+      <svg class="gate-art" viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="fur" x1="0" x2="1"><stop offset="0" stop-color="#f7c7a1"/><stop offset="1" stop-color="#f2a97b"/></linearGradient>
+          <linearGradient id="heart" x1="0" x2="1"><stop offset="0" stop-color="#ff4d7d"/><stop offset="1" stop-color="#ff1f68"/></linearGradient>
+        </defs>
+        <path d="M250 50 C250 33 270 25 282 38 C294 25 314 33 314 50 C314 78 282 92 282 106 C282 92 250 78 250 50Z" fill="url(#heart)"/>
+        <path d="M90 120 C90 70 140 40 190 60 C240 40 290 70 290 120 C290 180 240 210 190 210 C140 210 90 180 90 120Z" fill="url(#fur)"/>
+        <path d="M110 92 L95 55 L140 78 Z" fill="#f2a97b"/>
+        <path d="M270 92 L285 55 L240 78 Z" fill="#f2a97b"/>
+        <circle cx="160" cy="130" r="8"/>
+        <circle cx="220" cy="130" r="8"/>
+        <path d="M190 144 C186 144 182 148 182 152 C182 160 190 164 190 170 C190 164 198 160 198 152 C198 148 194 144 190 144Z" fill="#ff7aa2"/>
+      </svg>
+      <h1 class="gate-title">Iniya, will you be my valentine?</h1>
+      <section class="gate-button-zone" id="gateZone">
+        <button type="button" id="gateYesBtn" class="gate-btn gate-btn-yes">Yes</button>
+        <button type="button" id="gateNoBtn" class="gate-btn gate-btn-no">No</button>
+      </section>
+      <p class="gate-hint" id="gateHint">"No" seems a bit shy 😈</p>
+      <section class="gate-result" id="gateResult">
+        <h2 class="gate-result-title">YAY! 🎉</h2>
+        <img class="gate-fireworks" src="https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif" alt="" />
+        <p class="gate-enter-hint">Your surprise is ready...</p>
+        <button type="button" id="gateEnterBtn" class="gate-enter-btn">Enter your Valentine's World →</button>
+      </section>
+    </main>
+  </div>
+
+  <div id="mainWorld" class="main-world main-world-hidden">
+  <!-- Scroll progress (heart-themed bar at top) -->
+  <div class="scroll-progress-wrap" id="scrollProgressWrap" aria-hidden="true">
+    <div class="scroll-progress-bar" id="scrollProgressBar"></div>
+  </div>
+
+  <!-- Music toggle: edit src in js/config.js -->
+  <button type="button" class="music-toggle" id="musicToggle" aria-label="Toggle music">
+    <span class="icon-music">♪</span>
+    <span class="icon-mute">⊘</span>
+  </button>
+
+  <!-- Opening: full-screen intro -->
+  <section class="scene scene-opening" id="sceneOpening">
+    <canvas class="scene-bg-canvas" id="canvasOpening" aria-hidden="true"></canvas>
+    <div class="scene-content">
+      <p class="opening-tagline" id="openingTagline"></p>
+      <p class="opening-main" id="openingMain"></p>
+      <h1 class="opening-name" id="openingName"></h1>
+    </div>
+    <div class="scroll-hint" id="scrollHint">↓</div>
+  </section>
+
+  <!-- Letter: envelope that opens to reveal your message -->
+  <section class="scene scene-letter" id="sceneLetter">
+    <div class="scene-content letter-scene-content">
+      <h2 class="section-title letter-prompt">A letter for you</h2>
+      <p class="letter-hint">Tap gently — this one comes from the heart</p>
+      <button type="button" class="envelope-wrap" id="envelopeWrap" aria-label="Open letter">
+        <div class="envelope" id="envelope">
+          <div class="envelope-back"></div>
+          <div class="envelope-body"></div>
+          <div class="envelope-flap" id="envelopeFlap"></div>
+          <div class="letter-paper" id="letterPaper">
+            <div class="letter-inner" id="letterInner"></div>
+          </div>
+        </div>
+      </button>
+      <button type="button" class="letter-close" id="letterClose" aria-label="Close letter">Close</button>
+    </div>
+  </section>
+
+  <!-- Our Heart Tree: tree built from hearts, tap to add more -->
+  <section class="scene scene-heart-tree" id="sceneHeartTree">
+    <canvas class="heart-tree-canvas" id="canvasHeartTree" aria-hidden="true"></canvas>
+    <div class="scene-content heart-tree-content">
+      <h2 class="section-title">Our Heart Tree</h2>
+      <p class="heart-tree-hint">Tap anywhere to add a heart ♡</p>
+      <p class="heart-tree-count" id="heartTreeCount">You've added 0 hearts ♡</p>
+    </div>
+  </section>
+
+  <div class="section-divider" aria-hidden="true">♡</div>
+
+  <!-- Our Story: editable message cards -->
+  <section class="scene scene-story" id="sceneStory">
+    <canvas class="scene-bg-canvas scene-bg-canvas-trees" id="canvasStory" aria-hidden="true"></canvas>
+    <div class="scene-content">
+      <h2 class="section-title">Our Story</h2>
+      <div class="story-cards" id="storyCards"></div>
+    </div>
+  </section>
+
+  <div class="section-divider" aria-hidden="true">♡</div>
+
+  <!-- Memories Gallery: editable images as polaroids -->
+  <section class="scene scene-gallery" id="sceneGallery">
+    <canvas class="scene-bg-canvas scene-bg-canvas-trees" id="canvasGallery" aria-hidden="true"></canvas>
+    <div class="scene-content">
+      <h2 class="section-title">Memories</h2>
+      <div class="gallery-grid" id="galleryGrid"></div>
+    </div>
+  </section>
+
+  <div class="section-divider" aria-hidden="true">♡</div>
+
+  <!-- Special Notes: clickable hearts with messages -->
+  <section class="scene scene-notes" id="sceneNotes">
+    <canvas class="scene-bg-canvas" id="canvasNotes" aria-hidden="true"></canvas>
+    <div class="scene-content">
+      <h2 class="section-title">Special Notes</h2>
+      <p class="notes-hint">Tap the hearts</p>
+      <div class="love-notes-hearts" id="loveNotesHearts"></div>
+      <div class="love-note-modal" id="loveNoteModal" role="dialog" aria-hidden="true">
+        <div class="love-note-modal-inner">
+          <button type="button" class="love-note-close" id="loveNoteClose" aria-label="Close">×</button>
+          <p class="love-note-text" id="loveNoteText"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider" aria-hidden="true">♡</div>
+
+  <!-- Why I Like You: editable list -->
+  <section class="scene scene-why" id="sceneWhy">
+    <div class="scene-content">
+      <h2 class="section-title">Why I Like You</h2>
+      <ul class="why-list" id="whyList"></ul>
+    </div>
+  </section>
+
+  <div class="section-divider" aria-hidden="true">♡</div>
+
+  <!-- Late Night Thoughts: tap to reveal a thought -->
+  <section class="scene scene-late-night" id="sceneLateNight">
+    <div class="scene-content late-night-content" id="lateNightContent">
+      <h2 class="section-title">Late Night Thoughts</h2>
+      <p class="late-night-hint">Tap anywhere to reveal a thought</p>
+      <p class="late-night-thought" id="lateNightThought"></p>
+      <p class="humor-overthought" id="humorOverthought" aria-hidden="true"></p>
+    </div>
+  </section>
+
+  <div class="section-divider" aria-hidden="true">♡</div>
+
+  <!-- If We Were Here Together: scenario cards -->
+  <section class="scene scene-together" id="sceneTogether">
+    <div class="scene-content together-content">
+      <h2 class="section-title">If We Were Here Together</h2>
+      <p class="together-hint">Tap a card to read the scene</p>
+      <div class="together-cards" id="togetherCards"></div>
+    </div>
+  </section>
+
+  <div class="section-divider" aria-hidden="true">♡</div>
+
+  <!-- Things I Never Say Out Loud: messages one by one -->
+  <section class="scene scene-never-say" id="sceneNeverSay">
+    <div class="scene-content never-say-content">
+      <h2 class="section-title">Things I Never Say Out Loud</h2>
+      <button type="button" class="never-say-btn" id="neverSayBtn">Tap to reveal</button>
+      <p class="never-say-loading" id="neverSayLoading" aria-hidden="true"></p>
+      <p class="never-say-message" id="neverSayMessage"></p>
+    </div>
+  </section>
+
+  <div class="section-divider" aria-hidden="true">♡</div>
+
+  <!-- Final: Valentine message -->
+  <section class="scene scene-final" id="sceneFinal">
+    <canvas class="scene-bg-canvas scene-bg-canvas-trees" id="canvasFinal" aria-hidden="true"></canvas>
+    <div class="scene-content">
+      <h2 class="final-message" id="finalMessage"></h2>
+      <button type="button" class="btn-forever" id="btnForever"></button>
+    </div>
+  </section>
+
+  <!-- Cursor trail canvas (overlay) -->
+  <canvas class="trail-canvas" id="trailCanvas" aria-hidden="true"></canvas>
+
+  <!-- Confetti for double-tap easter egg (main world) -->
+  <canvas class="main-confetti-canvas" id="mainConfettiCanvas" aria-hidden="true"></canvas>
+
+  <!-- Scroll to top (appears after scrolling) -->
+  <button type="button" class="scroll-to-top" id="scrollToTop" aria-label="Scroll to top">↑</button>
+
+  <!-- Closure: "This doesn't end here" -->
+  <section class="scene scene-closure" id="sceneClosure">
+    <div class="scene-content closure-content">
+      <p class="closure-line" id="closureLine"></p>
+      <p class="closure-subline" id="closureSubline"></p>
+    </div>
+  </section>
+
+  <!-- Micro-interactions & easter eggs (in-context) -->
+  <button type="button" class="runaway-heart" id="runawayHeart" aria-label="Shy heart">♡</button>
+  <div class="fake-error-wrap" id="fakeErrorWrap">
+    <button type="button" class="fake-error-trigger" id="fakeErrorTrigger">Something went wrong</button>
+    <div class="fake-error-reveal" id="fakeErrorReveal" aria-hidden="true"></div>
+  </div>
+  <p class="hidden-builder-note" id="hiddenBuilderNote" aria-hidden="true"></p>
+  <p class="warning-banner" id="warningBanner" aria-hidden="true"></p>
+  <div class="hold-heart-wrap" id="holdHeartWrap">
+    <span class="hold-heart-progress" id="holdHeartProgress" aria-hidden="true"></span>
+    <button type="button" class="hold-heart-btn" id="holdHeartBtn" aria-label="Hold to open">♡</button>
+    <p class="hold-heart-hint" id="holdHeartHint">Hold for 3 seconds</p>
+  </div>
+  <div class="slow-scroll-reveal" id="slowScrollReveal" aria-hidden="true"></div>
+  <div class="hundred-hearts-reveal" id="hundredHeartsReveal" aria-hidden="true"></div>
+  <div class="night-mode-message" id="nightModeMessage" aria-hidden="true"></div>
+  <div class="falling-heart-wrap" id="fallingHeartWrap" aria-hidden="true">
+    <span class="falling-heart" id="fallingHeart" aria-label="Catch the heart">♡</span>
+  </div>
+  <div class="caught-heart-reveal" id="caughtHeartReveal" aria-hidden="true">
+    <div class="reveal-inner" id="caughtHeartRevealInner"></div>
+  </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/heart-tree.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
